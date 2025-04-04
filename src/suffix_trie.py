@@ -1,6 +1,11 @@
 import argparse
 import utils
 
+class SuffixTrieNode:
+    def __init__(self):
+        self.children = {}
+        self.is_end = False
+
 def get_args():
     parser = argparse.ArgumentParser(description='Suffix Trie')
 
@@ -20,12 +25,26 @@ def get_args():
     return parser.parse_args()
 
 def build_suffix_trie(s):
-    # YOUR CODE HERE
-    return None
+    root = SuffixTrieNode()
+    for i in range(len(s)):
+        node = root
+        for char in s[i:]:
+            if char not in node.children:
+                node.children[char] = SuffixTrieNode()
+            node = node.children[char]
+        node.is_end = True
+    return root
 
 def search_trie(trie, pattern):
-    # YOUR CODE HERE
-    return None
+    node = trie
+    match_length = 0
+    for char in pattern:
+        if char in node.children:
+            node = node.children[char]
+            match_length += 1
+        else:
+            break
+    return match_length
 
 def main():
     args = get_args()

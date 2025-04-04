@@ -25,34 +25,61 @@ def get_args():
 
 def build_suffix_array(T):
     tree = suffix_tree.build_suffix_tree(T)
-    # Your code here
+    suffix_array = []
 
-    #defs
+    # Perform depth-first traversal
     stack = [0]
+    suffixes = []
+
     while stack:
         node_idx = stack.pop()
-        for child in tree[node_idx][CHILDREN]:
+        node = tree[node_idx]
+
+        if not node[CHILDREN]:  # Leaf node
+            suffix_start = len(T) - len(node[SUB])
+            suffixes.append((T[suffix_start:], suffix_start))  # Store (suffix, index)
+
+        for child in sorted(node[CHILDREN].values(), reverse=True):
             stack.append(child)
 
+    # Sort by lexicographic order of suffixes
+    suffix_array = [suffix[1] for suffix in sorted(suffixes)]
 
+    # Debugging print
+    print("\nBuilt suffix array:")
+    for suffix in suffix_array[:10]:  # Print first 10 entries
+        print(f"   {suffix}: {T[suffix:]}")
 
-    return None
+    return suffix_array
+
 
 
 def search_array(T, suffix_array, q):
+    if not suffix_array:  
+        print("ERROR: Suffix array is empty!")
+        return 0
 
-    # Your code here
+    print(f"Searching for: {q} in suffix array of size {len(suffix_array)}")
 
-    # binary search
-    lo= -1
-    hi = len(suffix_array)
-    while (hi - lo > 1):
-        mid = int((lo + hi) / 2)
-        if suffix_array[mid] < q:
-            lo = mid
+    lo, hi = 0, len(suffix_array) - 1  # Adjusted lo and hi bounds
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        suffix = T[suffix_array[mid]:]  
+
+        print(f"  ▶ Binary search: lo={lo}, hi={hi}, mid={mid}, suffix='{suffix[:10]}...'")
+
+        if suffix.startswith(q):
+            print(f"Match found at index {suffix_array[mid]}")
+            return len(q)  # Match found!
+        elif suffix < q:
+            lo = mid + 1
         else:
-            hi = mid
-    return hi
+            hi = mid - 1
+
+    print("No match found.")
+    return 0
+
+
 
 def main():
     args = get_args()
